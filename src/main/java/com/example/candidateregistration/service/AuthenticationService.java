@@ -7,93 +7,90 @@ import com.example.candidateregistration.exception.InvalidRequestException;
 import com.example.candidateregistration.model.User;
 import com.example.candidateregistration.repository.UserRepository;
 import com.example.candidateregistration.security.JwtProvider;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthenticationService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtProvider jwtProvider;
+	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
+	private final JwtProvider jwtProvider;
 
-    public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtProvider = jwtProvider;
-    }
+	@Autowired
+	private EmailService emailService;
 
-    public LoginResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new InvalidRequestException("Invalid email or password"));
+	public AuthenticationService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+			JwtProvider jwtProvider) {
+		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
+		this.jwtProvider = jwtProvider;
+	}
 
-        if (!user.isActive()) {
-            throw new InvalidRequestException("Your account is inactive. Please contact support.");
-        }
+	public LoginResponse login(LoginRequest request) {
+		User user = userRepository.findByEmail(request.getEmail())
+				.orElseThrow(() -> new InvalidRequestException("Invalid email or password"));
 
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new InvalidRequestException("Invalid email or password");
-        }
+		if (!user.isActive()) {
+			throw new InvalidRequestException("Your account is inactive. Please contact support.");
+		}
 
-        String token = jwtProvider.generateToken(user.getEmail());
+		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+			throw new InvalidRequestException("Invalid email or password");
+		}
 
-        return new LoginResponse(token, user.getEmail(), "Login successful");
-    }
+		String token = jwtProvider.generateToken(user.getEmail());
 
-    public LoginResponse signup(SignupRequest request) {
-        // Check if email already exists
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new InvalidRequestException("Email is already registered");
-        }
+		return new LoginResponse(token, user.getEmail(), "Login successful");
+	}
 
-        // Validate password confirmation
-        if (!request.getPassword().equals(request.getConfirmPassword())) {
-            throw new InvalidRequestException("Passwords do not match");
-        }
+	public LoginResponse signup(SignupRequest request) {
+		// Check if email already exists
+		if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+			throw new InvalidRequestException("Email is already registered");
+		}
 
-        // Validate password length
-        if (request.getPassword().length() < 6) {
-            throw new InvalidRequestException("Password must be at least 6 characters");
-        }
+		// Validate password confirmation
+		if (!request.getPassword().equals(request.getConfirmPassword())) {
+			throw new InvalidRequestException("Passwords do not match");
+		}
 
-        // Validate role is not empty
-        if (request.getRole() == null || request.getRole().trim().isEmpty()) {
-            throw new InvalidRequestException("Role is required");
-        }
+		// Validate password length
+		if (request.getPassword().length() < 6) {
+			throw new InvalidRequestException("Password must be at least 6 characters");
+		}
 
-        // Create new user
-        User user = User.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .role(request.getRole().trim())
-                .createdAt(System.currentTimeMillis())
-                .active(true)
-                .build();
+		// Validate role is not empty
+		if (request.getRole() == null || request.getRole().trim().isEmpty()) {
+			throw new InvalidRequestException("Role is required");
+		}
 
-        userRepository.save(user);
+		// Create new user
+		User user = User.builder().email(request.getEmail()).password(passwordEncoder.encode(request.getPassword()))
+				.role(request.getRole().trim()).createdAt(System.currentTimeMillis()).active(false).build();
 
-        // Generate token and return login response
-        String token = jwtProvider.generateToken(user.getEmail());
+		userRepository.save(user);
 
-        return new LoginResponse(token, user.getEmail(), "Signup successful! Welcome aboard.");
-    }
+		// Generate token and return login response
+		String token = jwtProvider.generateToken(user.getEmail());
+		emailService.sendAdminRegistrationEmail( user);
+		return new LoginResponse(token, user.getEmail(), "Signup successful! Welcome aboard.");
+	}
 
-    /**
-     * Create a test user if needed (optional endpoint for development).
-     * In production, admin would create users via a separate user management system.
-     */
-    public void createTestUser(String email, String password) {
-        if (userRepository.findByEmail(email).isPresent()) {
-            throw new InvalidRequestException("Email already registered");
-        }
+	/**
+	 * Create a test user if needed (optional endpoint for development). In
+	 * production, admin would create users via a separate user management system.
+	 */
+	public void createTestUser(String email, String password) {
+		if (userRepository.findByEmail(email).isPresent()) {
+			throw new InvalidRequestException("Email already registered");
+		}
 
-        User user = User.builder()
-                .email(email)
-                .password(passwordEncoder.encode(password))
-                .role("Recruiter")
-                .active(true)
-                .build();
+		User user = User.builder().email(email).password(passwordEncoder.encode(password)).role("Recruiter")
+				.active(true).build();
 
-        userRepository.save(user);
-    }
+		userRepository.save(user);
+	}
 }

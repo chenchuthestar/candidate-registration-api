@@ -10,6 +10,8 @@ import com.example.candidateregistration.model.CandidateType;
 import com.example.candidateregistration.model.EducationDetail;
 import com.example.candidateregistration.model.ExperienceDetail;
 import com.example.candidateregistration.repository.CandidateRepository;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +26,8 @@ public class CandidateService {
 
 	private final CandidateRepository candidateRepository;
 	private final FileStorageService fileStorageService;
+	@Autowired
+	private EmailService emailService;
 
 	public CandidateService(CandidateRepository candidateRepository, FileStorageService fileStorageService) {
 		this.candidateRepository = candidateRepository;
@@ -53,6 +57,7 @@ public class CandidateService {
 		}
 
 		Candidate saved = candidateRepository.save(candidate);
+		emailService.sendRegistrationSucessEmail(request);
 		return toDTO(saved);
 	}
 

@@ -1,0 +1,16 @@
+services:
+  candidate-registration-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: candidate-registration-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "443:8443"
+    volumes:
+      - resume-data:/app/uploads/resumes
+
+volumes:
+  resume-data:

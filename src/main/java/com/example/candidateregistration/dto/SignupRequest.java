@@ -28,4 +28,8 @@ public class SignupRequest {
 
     @NotBlank(message = "Role is required")
     private String role;
+    
+    @NotBlank(message = "isActive status required")
+    private String isActive="false";
+   
 }

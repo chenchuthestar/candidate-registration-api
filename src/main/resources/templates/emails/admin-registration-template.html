@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>New Job Seeker Registration</title>
+
+</head>
+
+
+
+<body style="
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7fb;
+    font-family: Arial, Helvetica, sans-serif;
+">
+
+
+<table width="100%"
+       cellpadding="0"
+       cellspacing="0"
+       border="0"
+       style="
+           width: 100%;
+           background-color: #f4f7fb;
+           padding: 30px 10px;
+       ">
+
+    <tr>
+
+        <td align="center">
+
+
+            <!-- ================================= -->
+            <!-- MAIN EMAIL CONTAINER -->
+            <!-- ================================= -->
+
+            <table width="620"
+                   cellpadding="0"
+                   cellspacing="0"
+                   border="0"
+                   style="
+                       width: 100%;
+                       max-width: 620px;
+                       background-color: #ffffff;
+                       border-radius: 14px;
+                       overflow: hidden;
+                       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                   ">
+
+
+                <!-- ================================= -->
+                <!-- HEADER -->
+                <!-- ================================= -->
+
+                <tr>
+
+                    <td align="center"
+                        style="
+                            background: linear-gradient(
+                                135deg,
+                                #2563eb 0%,
+                                #4f46e5 50%,
+                                #7c3aed 100%
+                            );
+                            padding: 35px 25px;
+                        ">
+
+                        <h1 style="
+                            margin: 0;
+                            color: #ffffff;
+                            font-size: 30px;
+                            font-weight: 700;
+                            letter-spacing: 0.5px;
+                        ">
+                            StarTech
+                        </h1>
+
+
+                        <p style="
+                            margin: 10px 0 0;
+                            color: #e0e7ff;
+                            font-size: 14px;
+                            line-height: 1.5;
+                        ">
+                            Admin Registration System
+                        </p>
+
+                    </td>
+
+                </tr>
+
+
+                <!-- ================================= -->
+                <!-- NOTIFICATION SECTION -->
+                <!-- ================================= -->
+
+                <tr>
+
+                    <td align="center"
+                        style="
+                            padding: 35px 35px 15px;
+                        ">
+
+
+                        <div style="
+                            width: 70px;
+                            height: 70px;
+                            line-height: 70px;
+                            margin: 0 auto 18px;
+                            background-color: #eff6ff;
+                            border-radius: 50%;
+                            font-size: 36px;
+                        ">
+                            🔔
+                        </div>
+
+
+                        <h2 style="
+                            margin: 0;
+                            color: #1f2937;
+                            font-size: 24px;
+                            line-height: 1.3;
+                        ">
+                            New Admin Registration
+                        </h2>
+
+
+                        <p style="
+                            margin: 12px 0 0;
+                            color: #6b7280;
+                            font-size: 14px;
+                            line-height: 1.6;
+                        ">
+                            A new job seeker has successfully
+                            registered on the StarTech platform.
+                        </p>
+
+                    </td>
+
+                </tr>
+
+
+                <!-- ================================= -->
+                <!-- CANDIDATE NAME -->
+                <!-- ================================= -->
+
+                <tr>
+
+                    <td style="
+                        padding: 15px 35px 25px;
+                    ">
+
+
+                        <table width="100%"
+                               cellpadding="0"
+                               cellspacing="0"
+                               border="0"
+                               style="
+                                   background-color: #eff6ff;
+                                   border-radius: 10px;
+                                   border-left: 5px solid #2563eb;
+                               ">
+
+                            <tr>
+
+                                <td style="
+                                    padding: 20px;
+                                ">
+
+
+                                    <p style="
+                                        margin: 0 0 7px;
+                                        color: #6b7280;
+                                        font-size: 12px;
+                                        text-transform: uppercase;
+                                        letter-spacing: 0.5px;
+                                    ">
+                                        Candidate Name
+                                    </p>
+
+
+                                    <p style="
+                                        margin: 0;
+                                        color: #1e40af;
+                                        font-size: 21px;
+                                        font-weight: bold;
+                                    "
+                                    th:text="${candidateName}">
+                                       ${admin-name}
+                                    </p>
+
+
+                                </td>
+
+                            </tr>
+
+                        </table>
+
+                    </td>
+
+                </tr>
+
+
+                <!-- ================================= -->
+                <!-- REGISTRATION INFORMATION -->
+                <!-- ================================= -->
+
+                <tr>
+
+                    <td style="
+                        padding: 0 35px 30px;
+                    ">
+
+
+                        <h3 style="
+                            margin: 0 0 18px;
+                            color: #1f2937;
+                            font-size: 18px;
+                            font-weight: 600;
+                        ">
+                            📋 Registration Information
+                        </h3>
+
+
+                        <table width="100%"
+                               cellpadding="0"
+                               cellspacing="0"
+                               border="0"
+                               style="
+                                   border: 1px solid #e5e7eb;
+                                   border-radius: 10px;
+                                   overflow: hidden;
+                               ">
+
+
+                            <!-- Registration ID -->
+
+                            <tr>
+
+                                <td width="40%"
+                                    style="
+                                        padding: 14px;
+                                        background-color: #f9fafb;
+                                        color: #6b7280;
+                                        font-size: 13px;
+                                        border-bottom: 1px solid #e5e7eb;
+                                    ">
+                                    Registration ID
+                                </td>
+
+
+                                <td style="
+                                    padding: 14px;
+                                    color: #111827;
+                                    font-size: 14px;
+                                    font-weight: 600;
+                                    border-bottom: 1px solid #e5e7eb;
+                                "
+                                th:text="${registrationId}">
+                                    ${registration_id}
+                                </td>
+
+                            </tr>
+
+
+                            <!-- Registration Date -->
+
+                            <tr>
+
+                                <td width="40%"
+                                    style="
+                                        padding: 14px;
+                                        background-color: #f9fafb;
+                                        color: #6b7280;
+                                        font-size: 13px;
+                                        border-bottom: 1px solid #e5e7eb;
+                                    ">
+                                    Registration Date
+                                </td>
+
+
+                                <td style="
+                                    padding: 14px;
+                                    color: #111827;
+                                    font-size: 14px;
+                                    border-bottom: 1px solid #e5e7eb;
+                                "
+                                th:text="${registrationDate}">
+                                    ${registration-date}
+                                </td>
+
+                            </tr>
+
+
+                            <!-- Email -->
+
+                            <tr>
+
+                                <td width="40%"
+                                    style="
+                                        padding: 14px;
+                                        background-color: #f9fafb;
+                                        color: #6b7280;
+                                        font-size: 13px;
+                                        border-bottom: 1px solid #e5e7eb;
+                                    ">
+                                    Email Address
+                                </td>
+
+
+                                <td style="
+                                    padding: 14px;
+                                    color: #111827;
+                                    font-size: 14px;
+                                    border-bottom: 1px solid #e5e7eb;
+                                    word-break: break-word;
+                                "
+                                th:text="${candidateEmail}">
+                                   ${admin-email}
+                                </td>
+
+                            </tr>
+
+
+                            <!-- Location -->
+
+                            <tr>
+
+                                <td width="40%"
+                                    style="
+                                        padding: 14px;
+                                        background-color: #f9fafb;
+                                        color: #6b7280;
+                                        font-size: 13px;
+                                    ">
+                                    Location
+                                </td>
+
+
+                                <td style="
+                                    padding: 14px;
+                                    color: #111827;
+                                    font-size: 14px;
+                                "
+                                th:text="${location}">
+                                    Hyderabad
+                                </td>
+
+                            </tr>
+
+
+                        </table>
+
+                    </td>
+
+                </tr>
+
+
+                <!-- ================================= -->
+                <!-- ADMIN NOTICE -->
+                <!-- ================================= -->
+
+                <tr>
+
+                    <td style="
+                        padding: 0 35px 25px;
+                    ">
+
+
+                        <table width="100%"
+                               cellpadding="0"
+                               cellspacing="0"
+                               border="0"
+                               style="
+                                   background-color: #fff7ed;
+                                   border-left: 4px solid #f97316;
+                                   border-radius: 7px;
+                               ">
+
+                            <tr>
+
+                                <td style="
+                                    padding: 16px;
+                                ">
+
+
+                                    <p style="
+                                        margin: 0;
+                                        color: #9a3412;
+                                        font-size: 13px;
+                                        line-height: 1.6;
+                                    ">
+
+                                        <strong>
+                                            Admin Notification:
+                                        </strong>
+
+                                        A new job seeker registration
+                                        requires your review.
+                                        Please approve or reject the
+                                        registration using the buttons below.
+
+                                    </p>
+
+
+                                </td>
+
+                            </tr>
+
+                        </table>
+
+                    </td>
+
+                </tr>
+
+
+                <!-- ================================= -->
+                <!-- ACTION BUTTONS -->
+                <!-- ================================= -->
+
+                <tr>
+
+                    <td align="center"
+                        style="
+                            padding: 5px 35px 30px;
+                        ">
+
+
+                        <p style="
+                            margin: 0 0 18px;
+                            color: #374151;
+                            font-size: 14px;
+                            font-weight: 600;
+                        ">
+                            Registration Action
+                        </p>
+
+
+                        <table cellpadding="0"
+                               cellspacing="0"
+                               border="0"
+                               align="center">
+
+                            <tr>
+
+
+                                <!-- APPROVE BUTTON -->
+
+                                <td align="center"
+                                    style="
+                                        padding-right: 8px;
+                                    ">
+
+                                    <a th:href="${approveUrl}"
+                                       href="${approveUrl}"
+                                       style="
+                                           display: inline-block;
+                                           padding: 13px 25px;
+                                           background-color: #16a34a;
+                                           color: #ffffff;
+                                           text-decoration: none;
+                                           font-size: 14px;
+                                           font-weight: bold;
+                                           border-radius: 7px;
+                                       ">
+
+                                        ✓ Approve Registration
+
+                                    </a>
+
+                                </td>
+
+
+                                <!-- REJECT BUTTON -->
+
+                                <td align="center"
+                                    style="
+                                        padding-left: 8px;
+                                    ">
+
+                                    <a th:href="${rejectUrl}"
+                                       href="${rejectUrl}"
+                                       style="
+                                           display: inline-block;
+                                           padding: 13px 25px;
+                                           background-color: #dc2626;
+                                           color: #ffffff;
+                                           text-decoration: none;
+                                           font-size: 14px;
+                                           font-weight: bold;
+                                           border-radius: 7px;
+                                       ">
+
+                                        ✕ Reject Registration
+
+                                    </a>
+
+                                </td>
+
+
+                            </tr>
+
+                        </table>
+
+
+                    </td>
+
+                </tr>
+
+
+                <!-- ================================= -->
+                <!-- ACTION INFORMATION -->
+                <!-- ================================= -->
+
+                <tr>
+
+                    <td style="
+                        padding: 0 35px 30px;
+                    ">
+
+
+                        <table width="100%"
+                               cellpadding="0"
+                               cellspacing="0"
+                               border="0"
+                               style="
+                                   background-color: #f0fdf4;
+                                   border-left: 4px solid #16a34a;
+                                   border-radius: 7px;
+                               ">
+
+                            <tr>
+
+                                <td style="
+                                    padding: 15px;
+                                ">
+
+                                    <p style="
+                                        margin: 0;
+                                        color: #166534;
+                                        font-size: 12px;
+                                        line-height: 1.6;
+                                    ">
+
+                                        <strong>
+                                            Important:
+                                        </strong>
+
+                                        Please verify the registration
+                                        details before approving the
+                                        candidate.
+
+                                    </p>
+
+                                </td>
+
+                            </tr>
+
+                        </table>
+
+
+                    </td>
+
+                </tr>
+
+
+                <!-- ================================= -->
+                <!-- CLOSING -->
+                <!-- ================================= -->
+
+                <tr>
+
+                    <td align="center"
+                        style="
+                            padding: 0 35px 35px;
+                        ">
+
+
+                        <p style="
+                            margin: 0;
+                            color: #4b5563;
+                            font-size: 14px;
+                            line-height: 1.6;
+                        ">
+
+                            Please review the registration details
+                            carefully before taking any action.
+
+                        </p>
+
+
+                    </td>
+
+                </tr>
+
+
+                <!-- ================================= -->
+                <!-- FOOTER -->
+                <!-- ================================= -->
+
+                <tr>
+
+                    <td align="center"
+                        style="
+                            background-color: #111827;
+                            padding: 22px 20px;
+                        ">
+
+
+                        <p style="
+                            margin: 0;
+                            color: #e5e7eb;
+                            font-size: 13px;
+                            font-weight: 600;
+                        ">
+
+                            StarTech Admin Notification
+
+                        </p>
+
+
+                        <p style="
+                            margin: 8px 0 0;
+                            color: #9ca3af;
+                            font-size: 11px;
+                            line-height: 1.5;
+                        ">
+
+                            ©
+
+                            <span th:text="${currentYear}">
+                                2026
+                            </span>
+
+                            StarTech.
+                            All rights reserved.
+
+                        </p>
+
+
+                    </td>
+
+                </tr>
+
+
+            </table>
+
+
+        </td>
+
+    </tr>
+
+</table>
+
+
+</body>
+
+</html>
