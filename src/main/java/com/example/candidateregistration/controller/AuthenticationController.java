@@ -45,4 +45,23 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Test user created: " + email);
     }
+    @PostMapping("/{id}/approve")
+    public ResponseEntity<String> approve(
+            @PathVariable Long id,
+            @RequestParam String email) {
+
+        authenticationService.approve(id, email);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("User approved with ID: " + id + " and Email: " + email);
+    }
+
+    @PostMapping("/admin/{id}/reject")
+    public ResponseEntity<String> reject(
+            @RequestParam Long id,@RequestParam String email) {
+        authenticationService.reject(id,email);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body("User rejected: " + id);
+    }
+
 }

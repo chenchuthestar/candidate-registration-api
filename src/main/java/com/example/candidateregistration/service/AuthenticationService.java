@@ -33,8 +33,8 @@ public class AuthenticationService {
 		User user = userRepository.findByEmail(request.getEmail())
 				.orElseThrow(() -> new InvalidRequestException("Invalid email or password"));
 
-		if (!user.isActive()) {
-			throw new InvalidRequestException("Your account is inactive. Please contact support.");
+		if (!user.getEmail().equalsIgnoreCase("approved")) {
+			throw new InvalidRequestException("Your account is pending. Please contact support.");
 		}
 
 		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
@@ -46,38 +46,9 @@ public class AuthenticationService {
 		return new LoginResponse(token, user.getEmail(), "Login successful");
 	}
 
-	public LoginResponse signup(SignupRequest request) {
-		// Check if email already exists
-		if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-			throw new InvalidRequestException("Email is already registered");
-		}
-
-		// Validate password confirmation
-		if (!request.getPassword().equals(request.getConfirmPassword())) {
-			throw new InvalidRequestException("Passwords do not match");
-		}
-
-		// Validate password length
-		if (request.getPassword().length() < 6) {
-			throw new InvalidRequestException("Password must be at least 6 characters");
-		}
-
-		// Validate role is not empty
-		if (request.getRole() == null || request.getRole().trim().isEmpty()) {
-			throw new InvalidRequestException("Role is required");
-		}
-
-		// Create new user
-		User user = User.builder().email(request.getEmail()).password(passwordEncoder.encode(request.getPassword()))
-				.role(request.getRole().trim()).createdAt(System.currentTimeMillis()).active(false).build();
-
-		userRepository.save(user);
-
-		// Generate token and return login response
-		String token = jwtProvider.generateToken(user.getEmail());
-		emailService.sendAdminRegistrationEmail( user);
-		return new LoginResponse(token, user.getEmail(), "Signup successful! Welcome aboard.");
-	}
+    public LoginResponse signup(SignupRequest request) {
+        return null;
+    }
 
 	/**
 	 * Create a test user if needed (optional endpoint for development). In
@@ -89,8 +60,31 @@ public class AuthenticationService {
 		}
 
 		User user = User.builder().email(email).password(passwordEncoder.encode(password)).role("Recruiter")
-				.active(true).build();
+				.active("pending").build();
 
+		userRepository.save(user);
+	}
+
+	public void approve(Long id, String email) {
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("User not found"));
+
+		if (!user.getEmail().equals(email)) {
+			throw new RuntimeException("Email does not match user ID");
+		}
+
+		user.setActive("pending");
+		userRepository.save(user);
+	}
+	public void reject(Long id, String email) {
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new RuntimeException("User not found"));
+
+		if (!user.getEmail().equals(email)) {
+			throw new RuntimeException("Email does not match user ID");
+		}
+
+		user.setActive("pending");
 		userRepository.save(user);
 	}
 }

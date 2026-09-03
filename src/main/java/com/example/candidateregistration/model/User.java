@@ -28,7 +28,7 @@ public class User {
     private String role; // e.g., "HR", "Recruiter", "Manager", "Admin"
 
     @Column(nullable = false)
-    private boolean active = true;
+    private String active = "pending";
 
     @Column(nullable = false, updatable = false)
     private Long createdAt = System.currentTimeMillis();
