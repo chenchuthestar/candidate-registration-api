@@ -22,6 +22,7 @@ public class CandidateDTO {
 
     // Present only in responses; ignored/null on incoming create requests.
     private Long id;
+    private boolean active;
 
     // Present only in responses (set by the server after the file is stored).
     private String resumeFileName;

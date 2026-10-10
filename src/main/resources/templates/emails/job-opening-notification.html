@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>New job opportunity</title></head>
+<body style="margin:0;padding:24px 12px;background:#eef3fb;font-family:Arial,sans-serif;color:#24304b;line-height:1.7">
+<table role="presentation" style="width:100%;max-width:640px;margin:auto;background:white;border-radius:16px;overflow:hidden" cellpadding="0" cellspacing="0">
+<tr><td style="padding:26px;background:#245fce;color:white"><h1 style="margin:0;font-size:26px">StarTech</h1><p style="margin:4px 0 0">A new opportunity for you</p></td></tr>
+<tr><td style="padding:28px">
+<p>Hello <strong th:text="${candidateName}">Candidate</strong>,</p>
+<p>A new job opening matching your job category and candidate type has been posted.</p>
+<h2 style="color:#245fce" th:text="${job.jobTitle}">Job title</h2>
+<table style="width:100%;border-collapse:collapse" cellpadding="8">
+<tr><th align="left">Job ID</th><td th:text="${job.id}">ID</td></tr>
+<tr><th align="left">Company</th><td th:text="${job.companyName}">Company</td></tr>
+<tr><th align="left">Location</th><td th:text="${job.location}">Location</td></tr>
+<tr><th align="left">Job opening for</th><td th:text="${job.candidateType}">Fresher</td></tr>
+<tr><th align="left">Job category</th><td th:text="${category}">IT Job</td></tr>
+<tr><th align="left">Job type</th><td th:text="${job.jobType}">Full Time</td></tr>
+<tr th:if="${job.candidateType.name() == 'Experienced'}"><th align="left">Experience (years)</th><td><span th:text="${job.minExperience != null ? job.minExperience : 'Not specified'}"></span> – <span th:text="${job.maxExperience != null ? job.maxExperience : 'Not specified'}"></span></td></tr>
+<tr th:if="${job.closingDate != null}"><th align="left">Closing date</th><td th:text="${job.closingDate}"></td></tr>
+</table>
+<div th:if="${job.requiredSkills != null and !job.requiredSkills.isBlank()}"><h3>Required skills</h3><p th:text="${job.requiredSkills}"></p></div>
+<div th:if="${job.description != null and !job.description.isBlank()}"><h3>Job description</h3><p style="white-space:pre-line" th:text="${job.description}"></p></div>
+<p>Interested? Contact us on WhatsApp to discuss this opening.</p>
+<p><a th:href="${whatsappUrl}" aria-label="Contact us on WhatsApp" style="display:inline-block;background:#128c7e;color:white;padding:13px 22px;border-radius:8px;text-decoration:none;font-weight:bold">WhatsApp: <span th:text="${whatsappNumber}">+919618254711</span></a></p>
+<p style="font-size:12px;color:#718096">The button opens WhatsApp with a message ready for you to review and send.</p>
+<p>Best regards,<br><strong>StarTech Team</strong></p>
+</td></tr></table></body></html>

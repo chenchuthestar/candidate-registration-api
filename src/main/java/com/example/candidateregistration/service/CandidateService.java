@@ -11,7 +11,7 @@ import com.example.candidateregistration.model.EducationDetail;
 import com.example.candidateregistration.model.ExperienceDetail;
 import com.example.candidateregistration.repository.CandidateRepository;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,12 +26,13 @@ public class CandidateService {
 
 	private final CandidateRepository candidateRepository;
 	private final FileStorageService fileStorageService;
-	@Autowired
-	private EmailService emailService;
+	private final ApplicationEventPublisher events;
 
-	public CandidateService(CandidateRepository candidateRepository, FileStorageService fileStorageService) {
+	public CandidateService(CandidateRepository candidateRepository, FileStorageService fileStorageService,
+			ApplicationEventPublisher events) {
 		this.candidateRepository = candidateRepository;
 		this.fileStorageService = fileStorageService;
+		this.events = events;
 	}
 
 	@Transactional
@@ -57,13 +58,22 @@ public class CandidateService {
 		}
 
 		Candidate saved = candidateRepository.save(candidate);
-		emailService.sendRegistrationSucessEmail(request);
-		return toDTO(saved);
+		CandidateDTO response = toDTO(saved);
+		events.publishEvent(new CandidateRegistrationEvent(response, java.time.Instant.now()));
+		return response;
 	}
 
 	@Transactional(readOnly = true)
 	public List<CandidateDTO> getAllCandidates() {
 		return candidateRepository.findAll().stream().map(this::toDTO).toList();
+	}
+
+	@Transactional
+	public CandidateDTO updateStatus(Long id, boolean active) {
+		Candidate candidate = candidateRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Candidate not found with id: " + id));
+		candidate.setActive(active);
+		return toDTO(candidateRepository.save(candidate));
 	}
 
 	@Transactional(readOnly = true)
@@ -139,6 +149,7 @@ public class CandidateService {
 	private CandidateDTO toDTO(Candidate candidate) {
 		CandidateDTO dto = new CandidateDTO();
 		dto.setId(candidate.getId());
+		dto.setActive(candidate.isActive());
 		dto.setResumeFileName(candidate.getResumeFileName());
 		dto.setFullName(candidate.getFullName());
 		dto.setEmail(candidate.getEmail());

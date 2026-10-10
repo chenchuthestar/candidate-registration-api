@@ -43,6 +43,14 @@ public class CandidateController {
         return ResponseEntity.ok(candidateService.getAllCandidates());
     }
 
+    public record CandidateStatusRequest(@jakarta.validation.constraints.NotNull Boolean active) { }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<CandidateDTO> updateStatus(@PathVariable Long id,
+            @Valid @RequestBody CandidateStatusRequest request) {
+        return ResponseEntity.ok(candidateService.updateStatus(id, request.active()));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<CandidateDTO> getCandidateById(@PathVariable Long id) {
         return ResponseEntity.ok(candidateService.getCandidateById(id));

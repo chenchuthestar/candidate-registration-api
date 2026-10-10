@@ -27,9 +27,28 @@ public class User {
     @Column(nullable = false, length = 50)
     private String role; // e.g., "HR", "Recruiter", "Manager", "Admin"
 
+    @Builder.Default
     @Column(nullable = false)
     private String active = "pending";
 
+    @Builder.Default
     @Column(nullable = false, updatable = false)
     private Long createdAt = System.currentTimeMillis();
+
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean emailVerified = false;
+    private java.time.Instant emailVerifiedAt;
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "varchar(20) default 'PENDING'")
+    private AdminApprovalStatus adminApprovalStatus = AdminApprovalStatus.PENDING;
+    private java.time.Instant adminReviewedAt;
+    private String adminReviewedBy;
+
+    public boolean canLogin() {
+        return "Admin".equals(role)
+                ? emailVerified && adminApprovalStatus == AdminApprovalStatus.APPROVED
+                : "approved".equalsIgnoreCase(active);
+    }
 }

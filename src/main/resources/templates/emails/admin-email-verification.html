@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="utf-8"><title>Verify your admin email</title></head>
+<body style="font-family:Arial,sans-serif;background:#f4f7fb;padding:24px;color:#1f2937">
+<div style="max-width:600px;margin:auto;background:white;padding:32px;border-radius:12px">
+<h1>Verify your email</h1>
+<p>Your StarTech admin account was registered for <strong th:text="${email}">admin@example.com</strong>.</p>
+<p><a th:href="${verificationUrl}" style="display:inline-block;background:#2563eb;color:white;padding:12px 20px;border-radius:6px;text-decoration:none">Verify email address</a></p>
+<p>This link expires in <span th:text="${expirationHours}">48</span> hours and can be used once.</p>
+<p>You can sign in only after your email is verified and your admin registration is approved.</p>
+<p>If you did not register, ignore this email.</p>
+</div></body></html>

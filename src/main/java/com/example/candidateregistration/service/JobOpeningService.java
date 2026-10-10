@@ -17,9 +17,11 @@ import com.example.candidateregistration.repository.JobOpeningRepository;
 public class JobOpeningService {
 
 	private final JobOpeningRepository jobOpeningRepository;
+	private final org.springframework.context.ApplicationEventPublisher events;
 
-	public JobOpeningService(JobOpeningRepository jobOpeningRepository) {
+	public JobOpeningService(JobOpeningRepository jobOpeningRepository, org.springframework.context.ApplicationEventPublisher events) {
 		this.jobOpeningRepository = jobOpeningRepository;
+		this.events = events;
 	}
 
 	@Transactional(readOnly = true)
@@ -58,7 +60,9 @@ public class JobOpeningService {
 			jobOpening.setStatus(JobStatus.OPEN);
 		}
 
-		return jobOpeningRepository.save(jobOpening);
+		JobOpening saved = jobOpeningRepository.save(jobOpening);
+		if (saved.getStatus() == JobStatus.OPEN) events.publishEvent(new JobOpeningPostedEvent(saved.getId()));
+		return saved;
 	}
 
 	public JobOpening updateJobOpening(Long id, JobOpeningRequest request) {
@@ -66,10 +70,13 @@ public class JobOpeningService {
 		validateDates(request);
 
 		JobOpening existingJobOpening = getJobOpeningById(id);
+		boolean wasOpen = existingJobOpening.getStatus() == JobStatus.OPEN;
 
 		mapRequestToEntity(request, existingJobOpening);
 
-		return jobOpeningRepository.save(existingJobOpening);
+		JobOpening saved = jobOpeningRepository.save(existingJobOpening);
+		if (!wasOpen && saved.getStatus() == JobStatus.OPEN) events.publishEvent(new JobOpeningPostedEvent(saved.getId()));
+		return saved;
 	}
 
 	public void deleteJobOpening(Long id) {
@@ -78,11 +85,16 @@ public class JobOpeningService {
 	}
 
 	private void mapRequestToEntity(JobOpeningRequest request, JobOpening jobOpening) {
+		jobOpening.setCandidateType(request.getCandidateType());
 		jobOpening.setJobTitle(request.getJobTitle());
 		jobOpening.setCompanyName(request.getCompanyName());
 		jobOpening.setLocation(request.getLocation());
 		jobOpening.setMinExperience(request.getMinExperience());
 		jobOpening.setMaxExperience(request.getMaxExperience());
+		if (request.getCandidateType() == com.example.candidateregistration.model.CandidateType.Fresher) {
+			jobOpening.setMinExperience(null);
+			jobOpening.setMaxExperience(null);
+		}
 		jobOpening.setJobType(request.getJobType());
 		jobOpening.setJobCategory(request.getJobCategory());
 		jobOpening.setDescription(request.getDescription());
@@ -93,6 +105,7 @@ public class JobOpeningService {
 	}
 
 	private void validateExperience(JobOpeningRequest request) {
+		if (request.getCandidateType() == com.example.candidateregistration.model.CandidateType.Fresher) return;
 		Integer minimum = request.getMinExperience();
 		Integer maximum = request.getMaxExperience();
 

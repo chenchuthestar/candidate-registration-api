@@ -28,6 +28,11 @@ public class JobOpeningRequest {
     @Min(value = 0, message = "Maximum experience cannot be negative")
     private Integer maxExperience;
 
+    private com.example.candidateregistration.model.CandidateType candidateType;
+
+    public com.example.candidateregistration.model.CandidateType getCandidateType() { return candidateType; }
+    public void setCandidateType(com.example.candidateregistration.model.CandidateType value) { candidateType = value; }
+
     private String jobType;
 
     private String jobCategory;

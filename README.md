@@ -67,7 +67,6 @@ On first run:
 | Method | Path | Description |
 |--------|------|-------------|
 | POST | `/api/auth/login` | Login with email/password → returns JWT token |
-| POST | `/api/auth/create-test-user` | Create a test user (development only) |
 
 ### Candidates (Protected - require JWT token)
 
@@ -86,8 +85,8 @@ On first run:
 **Request:**
 ```json
 {
-  "email": "test@example.com",
-  "password": "Test@123"
+  "email": "user@example.com",
+  "password": "YOUR_PASSWORD"
 }
 ```
 
@@ -95,7 +94,7 @@ On first run:
 ```json
 {
   "token": "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9...",
-  "email": "test@example.com",
+  "email": "user@example.com",
   "message": "Login successful"
 }
 ```
@@ -121,18 +120,6 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9...
 If token is missing or invalid:
 - Returns **HTTP 401 Unauthorized**
 - Frontend automatically redirects to login
-
-## Test User Creation
-
-```bash
-curl -X POST "http://localhost:8080/api/auth/create-test-user?email=test@example.com&password=Test@123"
-```
-
-Or use the frontend login page "Create Test User" button.
-
-**Credentials:**
-- Email: `test@example.com`
-- Password: `Test@123`
 
 ## Database Schema
 
@@ -227,44 +214,36 @@ Resume files stored at: `uploads/resumes/[uuid].pdf`
 → Ensure token is in `Authorization: Bearer {token}` header.
 → File may be deleted. Check `uploads/resumes/` folder.
 
-### "Test user already exists"
-→ User was already created. Use test@example.com / Test@123 or delete and recreate.
-
 ## Development vs Production
 
 ### Development (`app.jwt.secret` default value)
 - Use provided test secret
-- Create test users via endpoint
 - Resume files stored locally
 - CORS allows http://localhost:5173
 
 ### Production
 1. Change `app.jwt.secret` to generated strong key
-2. Disable `/api/auth/create-test-user` endpoint (remove or add authentication)
-3. Use environment variables for secrets
-4. Enable HTTPS
-5. Consider moving uploads to cloud storage (AWS S3, etc.)
-6. Set up proper logging & monitoring
-7. Use HTTP-only, Secure cookies for JWT (not localStorage)
+2. Use environment variables for secrets
+3. Enable HTTPS
+4. Consider moving uploads to cloud storage (AWS S3, etc.)
+5. Set up proper logging & monitoring
+6. Use HTTP-only, Secure cookies for JWT (not localStorage)
 
 ## API Testing
 
 ### Using cURL
 
 ```bash
-# 1. Create test user
-curl -X POST "http://localhost:8080/api/auth/create-test-user?email=test@example.com&password=Test@123"
-
-# 2. Login
+# 1. Login with an existing account
 TOKEN=$(curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"Test@123"}' \
+  -d '{"email":"user@example.com","password":"YOUR_PASSWORD"}' \
   | jq -r '.token')
 
-# 3. Get candidates (with token)
+# 2. Get candidates (with token)
 curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/candidates
 
-# 4. Download resume
+# 3. Download resume
 curl -H "Authorization: Bearer $TOKEN" \
   http://localhost:8080/api/candidates/1/resume \
   -o resume.pdf
@@ -279,3 +258,84 @@ curl -H "Authorization: Bearer $TOKEN" \
 ---
 
 See frontend README for complete authentication flow.
+
+## Admin registration verification and approval
+
+`POST /api/auth/signup` creates an Admin account with `email_verified=false` and
+`admin_approval_status=PENDING`. It returns an email/role/message response, never a JWT.
+After the database transaction commits, two independent asynchronous email jobs run:
+
+- The registered email receives a one-use email verification link.
+- The configured approver receives approve/reject links. Opening a link shows a confirmation page; submitting that page records the decision.
+
+Configure these properties (environment overrides are supported):
+
+```properties
+app.registration.base-url=${APP_REGISTRATION_BASE_URL:http://localhost:8080}
+app.registration.approver-email=${APP_REGISTRATION_APPROVER_EMAIL:chenchuthestar@gmail.com}
+app.registration.token-expiration-hours=${APP_REGISTRATION_TOKEN_EXPIRATION_HOURS:48}
+```
+
+Set the base URL to the externally reachable HTTPS API origin in deployment, without `/api`.
+Both emails use the existing `spring.mail.*` SMTP configuration and Thymeleaf templates
+loaded from the classpath, including packaged JAR deployments.
+
+Login checks the password first, then requires both email verification and `APPROVED`
+status for Admin accounts. Rejected or pending admins cannot log in. Existing JWTs are
+also checked against the current database status. Other roles use the existing `active`
+field and newly registered non-admin accounts are marked `approved`.
+
+Persistence includes `email_verified`, `email_verified_at`, `admin_approval_status`,
+`admin_reviewed_at`, and `admin_reviewed_by` on `users`, plus the `registration_tokens`
+table. The configured `spring.jpa.hibernate.ddl-auto=update` adds these on startup;
+existing accounts default to unverified/pending rather than gaining admin access.
+For environments using managed migrations, add the equivalent columns/table before deploying.
+Tokens are random 256-bit values; only SHA-256 hashes are stored. Purpose, expiry, and
+consumption are checked, with database locks preventing simultaneous token reuse.
+The old user-ID/email-only approval/rejection endpoints have been removed.
+
+SMTP delivery is retried three times and failures are logged without tokens. Jobs run
+in memory and are not a durable queue; process interruption or persistent SMTP failure
+requires support intervention. Expired links also require support; automatic resend
+is not implemented.
+
+Run `mvn test` for login status combinations, signup, independent verification/review,
+expired/wrong-purpose/reused tokens, and approval preview checks. Tests mock mail delivery.
+
+## Job seeker registration confirmation
+
+After candidate registration commits, an asynchronous confirmation email goes to the
+submitted candidate email using the configured `spring.mail.*` settings. It includes the
+saved registration ID, personal/reference details, resume filename, education, and
+experience details for experienced candidates. Thymeleaf escapes submitted values and
+loads the template from the classpath in packaged JAR deployments.
+
+Email delivery is retried three times; persistent failure is logged by registration ID.
+A failed delivery does not undo registration. Like admin emails, these jobs run in memory
+and require support intervention if interrupted or if SMTP remains unavailable.
+
+## Candidate active/inactive status
+
+Candidates default to active, including existing rows through the `active` column's
+`boolean default true` schema definition. Admins can change the status at the top of the
+candidate details page. `PATCH /api/candidates/{id}/status` accepts `{ "active": false }`
+or `{ "active": true }`, persists the change, and returns the updated candidate.
+The endpoint requires the Admin role loaded from the database by the JWT filter.
+`GET /api/auth/me` returns the current email and role for displaying admin-only controls.
+Inactive candidates remain visible and their details/resume remain accessible; status
+changes do not delete registrations or send another registration confirmation email.
+
+## Matching job opening emails
+
+Creating an OPEN job or changing a CLOSED/ON_HOLD job to OPEN publishes a notification
+event. After commit, matching active candidates receive individual emails. Both job category
+(IT/NON_IT normalized to IT_Job/Non_IT_Job) and Fresher/Experienced candidate type must match.
+Ordinary edits to an already-open job do not resend; reopening a job does. Closed, expired,
+and unclassified jobs are skipped. Candidate email addresses are deduplicated per event.
+
+The email includes the job details and a WhatsApp contact button with a URL-encoded message
+identifying the opening and registration. Configure `app.jobs.whatsapp-number` or
+`APP_JOBS_WHATSAPP_NUMBER` with the full international number (default `919618254711`).
+WhatsApp opens with a prefilled message; the candidate reviews and sends it themselves.
+Delivery is asynchronous, retried three times per recipient, and persistent failures are
+logged without stopping other recipients. These in-memory jobs are not a durable mail queue.

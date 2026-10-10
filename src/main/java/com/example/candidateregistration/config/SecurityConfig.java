@@ -23,8 +23,10 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
+    private final com.example.candidateregistration.repository.UserRepository users;
 
-    public SecurityConfig(JwtProvider jwtProvider) {
+    public SecurityConfig(JwtProvider jwtProvider, com.example.candidateregistration.repository.UserRepository users) {
+        this.users = users;
         this.jwtProvider = jwtProvider;
     }
 
@@ -42,15 +44,17 @@ public class SecurityConfig {
             .authorizeHttpRequests(authz -> authz
                     .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/auth/signup").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/auth/create-test-user").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/candidates").permitAll()
-                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api/auth/verify-email", "/api/auth/admin/review").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
+                    .requestMatchers("/api/auth/**").denyAll()
+                    .requestMatchers(HttpMethod.PATCH, "/api/candidates/*/status").hasRole("Admin")
                     .requestMatchers(HttpMethod.GET, "/api/candidates/**").authenticated()
                     .requestMatchers(HttpMethod.DELETE, "/api/candidates/**").authenticated()
                     .requestMatchers("/api/candidates/**").authenticated()
                     .anyRequest().permitAll()
             )
-            .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(new JwtAuthenticationFilter(jwtProvider, users), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -59,7 +63,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(false);
 

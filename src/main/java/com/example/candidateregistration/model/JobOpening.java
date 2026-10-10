@@ -28,6 +28,12 @@ public class JobOpening {
     @Column(name = "max_experience")
     private Integer maxExperience;
 
+    @Enumerated(EnumType.STRING)
+    private CandidateType candidateType;
+
+    public CandidateType getCandidateType() { return candidateType; }
+    public void setCandidateType(CandidateType value) { candidateType = value; }
+
     @Column(name = "job_type", length = 50)
     private String jobType;
 

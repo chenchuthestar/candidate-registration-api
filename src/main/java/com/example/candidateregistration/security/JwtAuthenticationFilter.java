@@ -11,13 +11,14 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final com.example.candidateregistration.repository.UserRepository users;
 
-    public JwtAuthenticationFilter(JwtProvider jwtProvider) {
+    public JwtAuthenticationFilter(JwtProvider jwtProvider, com.example.candidateregistration.repository.UserRepository users) {
+        this.users = users;
         this.jwtProvider = jwtProvider;
     }
 
@@ -28,8 +29,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(jwt) && jwtProvider.validateToken(jwt)) {
             String email = jwtProvider.getEmailFromToken(jwt);
+            var user = users.findByEmailIgnoreCase(email).orElse(null);
+            if (user == null || !user.canLogin()) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-                    email, null, new ArrayList<>());
+                    email, null, java.util.List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + user.getRole())));
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(auth);
         }
